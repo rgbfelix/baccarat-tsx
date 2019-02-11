@@ -1,0 +1,12 @@
+.App {
+  position: relative;
+  width: 800px;
+  height: 600px;
+}
+
+.background-img {
+  position: absolute;
+  width: 800px;
+  height: 600px;
+  z-index: 1;
+}

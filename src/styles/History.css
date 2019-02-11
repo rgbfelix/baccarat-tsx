@@ -1,0 +1,63 @@
+.history {
+  left: -750px;
+  position: absolute;
+  display: flex;
+  background-color: green;
+  width: 800px;
+  height: 200px;
+  z-index: 2;
+  transition: left 0.25s;
+}
+
+.history.open {
+  left: 0px;
+}
+
+.games {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 576px;
+  height: 180px;
+  margin: 10px;
+}
+
+.game {
+  width: 36px;
+  height: 36px;
+  background-color: white;
+  outline: 1px solid black;
+}
+
+.game p {
+  color: black;
+  margin: 8.8px;
+  text-align: center;
+}
+
+.records {
+  background-color: white;
+  margin: 10px;
+  margin-left: 0px;
+  width: 144px;
+}
+
+.records p {
+  margin: 16px 4px;
+  font-size: 14px;
+}
+
+.history-button {
+  background-color: yellow;
+  cursor: pointer;
+  width: 50px;
+  height: 200px;
+  margin: 0px;
+}
+
+.history-button p {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  margin: 64px 15.8px;
+  text-align: justify;
+}

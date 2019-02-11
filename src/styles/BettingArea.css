@@ -1,0 +1,59 @@
+.betting-area {
+  position: absolute;
+  display: flex;
+  width: 800px;
+  height: 150px;
+  bottom: 100px;
+  z-index: 2;
+}
+
+.area {
+  position: relative;
+  cursor: pointer;
+  width: 140px;
+  height: 140px;
+}
+
+.area:first-child {
+  margin-left: 50px;
+}
+
+.area:last-child {
+  margin-right: 50px;
+}
+
+.area > p.label {
+  text-align: center;
+  color: white;
+  font-size: 24px;
+}
+
+.stacked-chips {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  transform: translateX(-50%);
+}
+
+.chip {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  margin-bottom: -77px;
+}
+
+.chip p {
+  position: absolute;
+  color: black;
+  font-size: 10px;
+  margin: 0px;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.chip img {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+}
