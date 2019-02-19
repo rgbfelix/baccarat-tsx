@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { ICard } from './CardsManager';
 
+import { totalScore, winResult } from './../utils/PureFunctions';
+
 import './../styles/CardsAndResults.css';
 
 interface IProps {
@@ -21,7 +23,7 @@ interface TableCard extends ICard {
 }
 
 class CardsAndResults extends React.Component<IProps, {}> {
-  getPlayerScore(): number {
+  getCurrentPlayerScore(): number {
     let score: number = 0;
     if (this.props.reveal_counter >= 1) {
       score += this.props.player1.value > 10 ? 10 : this.props.player1.value;
@@ -35,7 +37,7 @@ class CardsAndResults extends React.Component<IProps, {}> {
     return score % 10;
   }
 
-  getBankerScore(): number {
+  getCurrentBankerScore(): number {
     let score: number = 0;
     if (this.props.reveal_counter >= 2) {
       score += this.props.banker1.value > 10 ? 10 : this.props.banker1.value;
@@ -51,7 +53,10 @@ class CardsAndResults extends React.Component<IProps, {}> {
 
   showMessage(): string {
     if (this.props.game_state === 'showing_win') {
-      return this.getWinResult();
+      return winResult(
+        totalScore([this.props.player1.value, this.props.player2.value, this.props.player3.value]),
+        totalScore([this.props.banker1.value, this.props.banker2.value, this.props.banker3.value])
+      ) + (this.props.win < 0 ? 0 : this.props.win);
     }
     else if (this.props.game_state === 'revealing_cards' && this.props.show_blank) {
       return 'Blank card! Shuffling...';
@@ -61,27 +66,11 @@ class CardsAndResults extends React.Component<IProps, {}> {
     }
   }
 
-  getWinResult(): string {
-    let player_score: number = this.getPlayerScore();
-    let banker_score: number = this.getBankerScore();
-    let message: string = '';
-    if (player_score > banker_score) {
-      message = 'PLAYER WINS!';
-    }
-    else if (player_score < banker_score) {
-      message = 'BANKER WINS!';
-    }
-    else {
-      message = 'IT\'S A TIE!';
-    }
-    return `${message} +${this.props.win < 0 ? 0 : this.props.win}`;
-  }
-
   render() {
     return (
       <div className="cards-and-results">
         <div className="player-side">
-          <p>{`PLAYER: ${this.getPlayerScore()}`}</p>
+          <p>{`PLAYER: ${this.getCurrentPlayerScore()}`}</p>
           <div className="cards">
             <TableCard value={this.props.player1.value} suit={this.props.player1.suit} time_to_show={this.props.reveal_counter >= 1} />
             <TableCard value={this.props.player2.value} suit={this.props.player2.suit} time_to_show={this.props.reveal_counter >= 3} />
@@ -93,7 +82,7 @@ class CardsAndResults extends React.Component<IProps, {}> {
           <TableCard value={0} suit='B' time_to_show={this.props.show_blank} />
         </div>
         <div className="banker-side">
-          <p>{`BANKER: ${this.getBankerScore()}`}</p>
+          <p>{`BANKER: ${this.getCurrentBankerScore()}`}</p>
           <div className="cards">
             <TableCard value={this.props.banker1.value} suit={this.props.banker1.suit} time_to_show={this.props.reveal_counter >= 2} />
             <TableCard value={this.props.banker2.value} suit={this.props.banker2.suit} time_to_show={this.props.reveal_counter >= 4} />

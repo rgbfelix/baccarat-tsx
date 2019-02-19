@@ -9,6 +9,7 @@ import CardsAndResults from './components/CardsAndResults';
 import BettingArea from './components/BettingArea';
 import Footer from './components/Footer';
 import CardsManager, { DrawResult, ICard } from './components/CardsManager';
+import { totalBet, totalWin } from './utils/PureFunctions';
 
 import background from './images/background.jpg';
 
@@ -73,14 +74,25 @@ class App extends React.Component<Props, IState> {
     this.props.setCard(Actions.SET_BANKER3, table_cards[5].value, table_cards[5].suit);
     let player_score: number = this.cards_manager.getScore([table_cards[0].value, table_cards[2].value, table_cards[4].value]);
     let banker_score: number = this.cards_manager.getScore([table_cards[1].value, table_cards[3].value, table_cards[5].value]);
-    this.props.setWin(this.computeWin(player_score, banker_score));
+    // NOTE: Total win means gross win before deduction of total bet.
+    this.props.setWin(totalWin(
+      player_score,
+      banker_score,
+      table_cards[0].value === table_cards[2].value,
+      table_cards[1].value === table_cards[3].value,
+      this.props.betting.pp,
+      this.props.betting.player,
+      this.props.betting.tie,
+      this.props.betting.banker,
+      this.props.betting.bp
+    ));
 
     this.props.setGameState('revealing_cards');
     window.setTimeout(this.revealCards.bind(this), 250);
   }
 
   getTotalBet(): number {
-    return this.props.betting.pp + this.props.betting.player + this.props.betting.tie + this.props.betting.banker + this.props.betting.bp;
+    return totalBet(this.props.betting.pp, this.props.betting.player, this.props.betting.tie, this.props.betting.banker, this.props.betting.bp);
   }
 
   revealCards() {
@@ -151,48 +163,6 @@ class App extends React.Component<Props, IState> {
       this.props.addHistory('T');
     }
     this.props.setBalance(this.props.user.balance + this.props.betting.win);
-  }
-
-  computeWin(player_score: number, banker_score: number): number {
-    if (this.getTotalBet() === 0) {
-      return 0;
-    }
-    let wins: number = 0;
-    // it's a tie
-    if (player_score === banker_score) {
-      // return bets on player and banker if no bet on tie
-      if (this.props.betting.tie === 0) {
-        wins += (this.props.betting.player + this.props.betting.banker);
-      }
-      else {
-        wins += (this.props.betting.tie * 9);
-      }
-    }
-    // player wins
-    else if (player_score > banker_score) {
-      if (this.props.betting.player > 0) {
-        wins += (this.props.betting.player * 2);
-      }
-    }
-    // banker wins
-    else if (player_score < banker_score) {
-      if (this.props.betting.banker > 0) {
-        wins += (this.props.betting.banker * 2);
-      }
-    }
-    // player pairs
-    if (this.props.game.player1.value === this.props.game.player2.value) {
-      if (this.props.betting.pp > 0) {
-        wins += (this.props.betting.pp * 12);
-      }
-    }
-    // banker pairs
-    if (this.props.game.banker1.value === this.props.game.banker2.value) {
-      if (this.props.betting.bp > 0) {
-        wins += (this.props.betting.bp * 12);
-      }
-    }
-    return wins;
   }
 
   render() {
