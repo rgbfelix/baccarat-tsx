@@ -1,4 +1,9 @@
 import * as React from 'react';
+import { Dispatch } from 'react';
+import { connect } from 'react-redux';
+import { IGameState, IBettingState, IRootState } from './../redux/Store';
+import { setGameState, clearCards, addBet, IAction } from './../redux/actions/Actions';
+import Actions from './../redux/actions/Actions';
 
 import chip5 from './../images/chip5.png';
 import chip10 from './../images/chip10.png';
@@ -8,19 +13,18 @@ import chip100 from './../images/chip100.png';
 
 import './../styles/BettingArea.css';
 
-interface BettingAreaProps {
-    bets: IBets;
-    areaClickHandler: (event: any) => void;
-    parent: any;
+interface StateProps {
+  game: IGameState;
+  betting: IBettingState;
 }
 
-export interface IBets {
-  pp: number,
-  player: number,
-  banker: number,
-  tie: number,
-  bp: number
+interface DispatchProps {
+  setGameState: (game_state: string) => void;
+  clearCards: () => void;
+  addBet: (actionType: string, chip_value: number) => void;
 }
+
+type Props = StateProps & DispatchProps;
 
 interface AreaProps {
   label: string;
@@ -33,19 +37,29 @@ interface ChipProps {
   background: string;
 }
 
-function BettingArea({ bets, areaClickHandler, parent }: BettingAreaProps) {
-  return (
-    <div className="betting-area">
-      <Area label="PP" handler={areaClickHandler.bind(parent, "pp")} total={bets.pp}/>
-      <Area label="PLAYER" handler={areaClickHandler.bind(parent, "player")} total={bets.player}/>
-      <Area label="TIE" handler={areaClickHandler.bind(parent, "tie")} total={bets.tie}/>
-      <Area label="BANKER" handler={areaClickHandler.bind(parent, "banker")} total={bets.banker}/>
-      <Area label="BP" handler={areaClickHandler.bind(parent, "bp")} total={bets.bp}/>
-    </div>
-  );
+class BettingArea extends React.Component<Props, {}> {
+  areaClickHandler(actionType: string) {
+    if (this.props.game.game_state === 'waiting_to_deal' || this.props.game.game_state === 'showing_win') {
+      this.props.setGameState('waiting_to_deal');
+      this.props.clearCards();
+      this.props.addBet(actionType, this.props.betting.selected_chip);
+    }
+  }
+
+  render() {
+    return (
+      <div className="betting-area">
+        <Area label="PP" handler={this.areaClickHandler.bind(this, Actions.ADD_PP)} total={this.props.betting.pp}/>
+        <Area label="PLAYER" handler={this.areaClickHandler.bind(this, Actions.ADD_PLAYER)} total={this.props.betting.player}/>
+        <Area label="TIE" handler={this.areaClickHandler.bind(this, Actions.ADD_TIE)} total={this.props.betting.tie}/>
+        <Area label="BANKER" handler={this.areaClickHandler.bind(this, Actions.ADD_BANKER)} total={this.props.betting.banker}/>
+        <Area label="BP" handler={this.areaClickHandler.bind(this, Actions.ADD_BP)} total={this.props.betting.bp}/>
+      </div>
+    );
+  }
 }
 
-function Area({ label, handler, total }: AreaProps) {
+const Area = ({ label, handler, total }: AreaProps) => {
   return (
     <div className="area" onClick={handler}>
       <p className="label">{label}</p>
@@ -56,7 +70,7 @@ function Area({ label, handler, total }: AreaProps) {
   );
 }
 
-function Chip({ label, background }: ChipProps) {
+const Chip = ({ label, background }: ChipProps) => {
   return (
     <div className={"chip"}>
       <img src={background} />
@@ -65,7 +79,7 @@ function Chip({ label, background }: ChipProps) {
   );
 }
 
-function displayChips(total: number) {
+const displayChips = (total: number) => {
   const chips_variants = [100, 50, 25, 10, 5];
   const chip_background = [chip100, chip50, chip25, chip10, chip5];
   let remaining_undisplayed: number = total;
@@ -86,4 +100,16 @@ function displayChips(total: number) {
   return p;
 }
 
-export default BettingArea;
+const mapStateToProps = ({game, betting}: IRootState ) => {
+  return {game, betting}
+};
+
+const mapDispatchToProps = (dispatch: Dispatch<IAction>) => {
+  return {
+    setGameState: (game_state: string) => dispatch(setGameState(game_state)),
+    clearCards: () => dispatch(clearCards()),
+    addBet: (actionType: string, chip_value: number) => dispatch(addBet(actionType, chip_value))
+  }
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BettingArea);

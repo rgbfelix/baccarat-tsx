@@ -3,20 +3,32 @@ export interface ICard {
   suit: string;
 }
 
+export interface DrawResult {
+  table_cards: ICard[];
+  blank_on: number;
+}
+
 class CardsManager {
-  number_of_decks: number = 3;
-  remaining_cards_before_blank: number;
+  public static NUMBER_OF_DECKS: number = 3;
+
+  remaining_draws_before_blank: number;
   deck: Array<Card> = [];
   played: Array<Card> = [];
+  player1: Card = new Card(0, '');
+  player2: Card = new Card(0, '');
+  player3: Card = new Card(0, '');
+  banker1: Card = new Card(0, '');
+  banker2: Card = new Card(0, '');
+  banker3: Card = new Card(0, '');
 
   constructor() {
-    this.generateCards(this.number_of_decks);
+    this.generateCards();
     this.shuffleDeck();
   }
 
-  generateCards(number_of_decks: number) {
-    const suits = ['S', 'C', 'H', 'D'];
-    for (let d: number = 0; d < number_of_decks; d++) {
+  generateCards() {
+    const suits: string[] = ['S', 'C', 'H', 'D'];
+    for (let d: number = 0; d < CardsManager.NUMBER_OF_DECKS; d++) {
       for (let s: number = 0; s < suits.length; s++) {
         for (let v: number = 1; v <= 13; v++) {
           let card = new Card(v, suits[s]);
@@ -26,37 +38,89 @@ class CardsManager {
     }
   }
 
-  public drawCard(): ICard {
-    // drew the imaginary blank card
-    if (this.remaining_cards_before_blank === 0) {
-      this.shuffleDeck();
-      return {value: 0, suit: 'B'};
-    }
-    // drew a regular card
-    else {
-      this.remaining_cards_before_blank--;
-      let card: ICard = this.deck.pop() as ICard;
-      this.played.push(card);
-      return {value: card.value, suit: card.suit};
-    }
-  }
-
-  public shuffleDeck() {
+  shuffleDeck() {
     // return all played cards to the deck
     for (let i: number = this.played.length - 1; i >= 0; i--) {
       this.deck.push(this.played.pop() as ICard);
     }
-    // shuffle deck array
+    // shuffle the deck
     for (let i: number = this.deck.length - 1; i > 0; i--) {
-      let randomIndex: number = Math.floor(Math.random() * (i + 1));
-      this.deck.push(this.deck.splice(randomIndex, 1)[0]);
+      let random_index: number = Math.floor(Math.random() * (i + 1));
+      this.deck.push(this.deck.splice(random_index, 1)[0]);
     }
-    // reset how many cards remaining to draw the imaginary blank card (about 15 cards from the middle)
-    this.remaining_cards_before_blank = this.number_of_decks * 52 / 2 + (Math.round(Math.random() * 30) - 15);
+    // reset how many draws remaining before drawing the imaginary blank card (about 0 to 15 cards away from the middle)
+    this.remaining_draws_before_blank = CardsManager.NUMBER_OF_DECKS * 52 / 2 + (Math.round(Math.random() * 30) - 15);
+  }
+
+  public drawCards(): DrawResult {
+    let blank_on: number = -1;
+    let table_cards: ICard[] = [this.player1, this.banker1, this.player2, this.banker2, this.player3, this.banker3];
+    for (let draw_counter: number = 0; draw_counter < 6; draw_counter++) {
+      // drew the blank
+      if (this.remaining_draws_before_blank === 0) {
+        blank_on = draw_counter;
+        this.shuffleDeck();
+      }
+      // drew a regular card
+      if (this.canDraw(draw_counter)) {
+        this.remaining_draws_before_blank--;
+        let card: ICard = this.deck.pop() as ICard;
+        this.played.push(card);
+        table_cards[draw_counter].value = card.value;
+        table_cards[draw_counter].suit = card.suit;
+      }
+    }
+    return {
+      table_cards: table_cards,
+      blank_on: blank_on
+    };
+  }
+
+  canDraw(draw_counter: number): boolean {
+    if (draw_counter <= 3) {
+      return true;
+    }
+    else {
+      let player1: number = this.player1.value;
+      let banker1: number = this.banker1.value;
+      let player2: number = this.player2.value;
+      let banker2: number = this.banker2.value;
+      let player3: number = this.player3.value;
+      let banker3: number = this.banker3.value;
+      let player_score: number = this.getScore([player1, player2, player3]);
+      let banker_score: number = this.getScore([banker1, banker2, banker3]);
+      if (draw_counter === 4) {
+        return player_score <= 5;
+      }
+      else if (draw_counter === 5) {
+        if (banker_score <= 5 && player_score >= 6) {
+          return true;
+        }
+        else if (
+          player3 > 0 &&
+          ((banker_score <= 2) ||
+          (banker_score === 3 && player3 != 8) ||
+          (banker_score === 4 && player3 >= 2 && player3 <= 7) ||
+          (banker_score === 5 && player3 >= 4 && player3 <= 7) ||
+          (banker_score === 6 && player3 >= 6 && player3 <= 7))
+        ) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
+  public getScore(values: number[]): number {
+    let score: number = 0;
+    for (let i: number = 0; i < values.length; i++) {
+      score += values[i] > 10 ? 10 : values[i];
+    }
+    return score % 10;
   }
 }
 
-class Card implements ICard {
+export class Card implements ICard {
   public value: number;
   public suit: string;
 
