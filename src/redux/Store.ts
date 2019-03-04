@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import Actions, { IAction } from './actions/Actions';
+import Actions, { GameStates, IAction } from './actions/Actions';
 import { ICard, Card } from 'src/components/CardsManager';
 
 export interface IRootState {
@@ -40,7 +40,7 @@ const userInitialState: IUserState = {
 }
 
 const gameInitialState: IGameState = {
-  game_state: 'waiting_to_deal',
+  game_state: GameStates.WAITING_TO_DEAL,
   player1: new Card(0, ''),
   player2: new Card(0, ''),
   player3: new Card(0, ''),
@@ -80,6 +80,9 @@ const userReducer = (state: IUserState = userInitialState, action: IAction) => {
 const gameReducer = (state: IGameState = gameInitialState, action: IAction) => {
   switch (action.type) {
     case Actions.SET_GAME_STATE:
+      if (action.payload.game_state === '') {
+        return state;
+      }
       state = {
         ...state,
         game_state: action.payload.game_state

@@ -24,6 +24,16 @@ export const setBalance = (value: number): IAction => {
 
 // game actions
 export const setGameState = (game_state: string): IAction => {
+  let isValidGameState: boolean = false;
+  for (let i: number = 0; i < GameStates.VALID_GAME_STATES.length; i++) {
+    if (game_state === GameStates.VALID_GAME_STATES[i]) {
+      isValidGameState = true;
+      break;
+    }
+  }
+  if (!isValidGameState) {
+    game_state = '';
+  }
   return {
     type: Actions.SET_GAME_STATE,
     payload: {
@@ -40,6 +50,12 @@ export const clearCards = (): IAction => {
 }
 
 export const setCard = (actionType: string, value: number, suit: string): IAction => {
+  if (value < 0) {
+    value = 0;
+  }
+  else if (value > 13) {
+    value = 13;
+  }
   return {
     type: actionType,
     payload: {
@@ -60,6 +76,9 @@ export const addHistory = (result: string): IAction => {
 
 // betting actions
 export const setWin = (amount: number): IAction => {
+  if (amount < 0) {
+    amount = 0;
+  }
   return {
     type: Actions.SET_WIN,
     payload: {
@@ -85,12 +104,26 @@ export const clearBets = (): IAction => {
 }
 
 export const addBet = (actionType: string, chip_value: number): IAction => {
+  if (chip_value < 0) {
+    chip_value = 0;
+  }
   return {
     type: actionType,
     payload: {
       chip_value: chip_value
     }
   }
+}
+
+export class GameStates {
+  public static WAITING_TO_DEAL: string = 'WAITING_TO_DEAL';
+  public static REVEALING_CARDS: string = 'REVEALING_CARDS';
+  public static SHOWING_WIN: string = 'SHOWING_WIN';
+  public static VALID_GAME_STATES: string[] = [
+    GameStates.WAITING_TO_DEAL,
+    GameStates.REVEALING_CARDS,
+    GameStates.SHOWING_WIN
+  ];
 }
 
 class Actions {

@@ -10,6 +10,7 @@ export interface DrawResult {
 
 class CardsManager {
   public static NUMBER_OF_DECKS: number = 3;
+  public static SUITS: string[] = ['S', 'C', 'H', 'D']
 
   remaining_draws_before_blank: number;
   deck: Array<Card> = [];
@@ -27,11 +28,10 @@ class CardsManager {
   }
 
   generateCards() {
-    const suits: string[] = ['S', 'C', 'H', 'D'];
     for (let d: number = 0; d < CardsManager.NUMBER_OF_DECKS; d++) {
-      for (let s: number = 0; s < suits.length; s++) {
+      for (let s: number = 0; s < CardsManager.SUITS.length; s++) {
         for (let v: number = 1; v <= 13; v++) {
-          let card = new Card(v, suits[s]);
+          let card = new Card(v, CardsManager.SUITS[s]);
           this.deck.push(card);
         }
       }

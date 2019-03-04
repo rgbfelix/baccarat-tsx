@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ICard } from './CardsManager';
+import { GameStates } from './../redux/actions/Actions';
 
 import { totalScore, winResult } from './../utils/PureFunctions';
 
@@ -52,13 +53,13 @@ class CardsAndResults extends React.Component<IProps, {}> {
   }
 
   showMessage(): string {
-    if (this.props.game_state === 'showing_win') {
+    if (this.props.game_state === GameStates.SHOWING_WIN) {
       return winResult(
         totalScore([this.props.player1.value, this.props.player2.value, this.props.player3.value]),
         totalScore([this.props.banker1.value, this.props.banker2.value, this.props.banker3.value])
       ) + (this.props.win < 0 ? 0 : this.props.win);
     }
-    else if (this.props.game_state === 'revealing_cards' && this.props.show_blank) {
+    else if (this.props.game_state === GameStates.REVEALING_CARDS && this.props.show_blank) {
       return 'Blank card! Shuffling...';
     }
     else {

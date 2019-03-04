@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { IUserState, IGameState, IBettingState, IRootState } from './../redux/Store';
-import { setBalance, setGameState, clearBets, clearCards, selectChip, IAction } from './../redux/actions/Actions';
+import { GameStates, setBalance, setGameState, clearBets, clearCards, selectChip, IAction } from './../redux/actions/Actions';
 
 import chip5 from './../images/chip5.png';
 import chip10 from './../images/chip10.png';
@@ -57,10 +57,10 @@ class Footer extends React.Component<Props, {}> {
   }
 
   clearClickHandler() {
-    if (this.props.game.game_state === 'waiting_to_deal' || this.props.game.game_state === 'showing_win') {
+    if (this.props.game.game_state === GameStates.WAITING_TO_DEAL || this.props.game.game_state === GameStates.SHOWING_WIN) {
       this.props.clearBets();
       this.props.clearCards();
-      this.props.setGameState('waiting_to_deal');
+      this.props.setGameState('sasdasd');
     }
   }
 

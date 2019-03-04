@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { IUserState, IGameState, IBettingState, IRootState } from './redux/Store';
-import Actions, { setBalance, setGameState, clearCards, setCard, addHistory, setWin, clearBets, IAction } from './redux/actions/Actions';
+import Actions, { GameStates, setBalance, setGameState, clearCards, setCard, addHistory, setWin, clearBets, IAction } from './redux/actions/Actions';
 
 import History from './components/History';
 import CardsAndResults from './components/CardsAndResults';
@@ -47,7 +47,7 @@ class App extends React.Component<Props, IState> {
   cards_manager: CardsManager = new CardsManager();
 
   dealClickHandler = (event: any) => {
-    if (this.props.game.game_state === 'waiting_to_deal' || this.props.game.game_state === 'showing_win') {
+    if (this.props.game.game_state === GameStates.WAITING_TO_DEAL || this.props.game.game_state === GameStates.WAITING_TO_DEAL) {
       if (this.props.user.balance >= this.getTotalBet()) {
         this.props.clearCards();
         this.setState({reveal_counter: 0});
