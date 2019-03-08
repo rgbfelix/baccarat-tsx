@@ -87,7 +87,7 @@ class App extends React.Component<Props, IState> {
       this.props.betting.bp
     ));
 
-    this.props.setGameState('revealing_cards');
+    this.props.setGameState(GameStates.REVEALING_CARDS);
     window.setTimeout(this.revealCards.bind(this), 250);
   }
 
@@ -150,7 +150,7 @@ class App extends React.Component<Props, IState> {
   }
 
   showWin() {
-    this.props.setGameState('showing_win');
+    this.props.setGameState(GameStates.SHOWING_WIN);
     let player_score: number = this.cards_manager.getScore([this.props.game.player1.value, this.props.game.player2.value, this.props.game.player3.value]);
     let banker_score: number = this.cards_manager.getScore([this.props.game.banker1.value, this.props.game.banker2.value, this.props.game.banker3.value]);
     if (player_score > banker_score) {

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { IGameState, IBettingState, IRootState } from './../redux/Store';
-import { setGameState, clearCards, addBet, IAction } from './../redux/actions/Actions';
+import { setGameState, clearCards, addBet, IAction, GameStates } from './../redux/actions/Actions';
 import Actions from './../redux/actions/Actions';
 
 import chip5 from './../images/chip5.png';
@@ -39,8 +39,9 @@ interface ChipProps {
 
 class BettingArea extends React.Component<Props, {}> {
   areaClickHandler(actionType: string) {
-    if (this.props.game.game_state === 'waiting_to_deal' || this.props.game.game_state === 'showing_win') {
-      this.props.setGameState('waiting_to_deal');
+    console.log('aaa');
+    if (this.props.game.game_state === GameStates.WAITING_TO_DEAL || this.props.game.game_state === GameStates.SHOWING_WIN) {
+      this.props.setGameState(GameStates.WAITING_TO_DEAL);
       this.props.clearCards();
       this.props.addBet(actionType, this.props.betting.selected_chip);
     }

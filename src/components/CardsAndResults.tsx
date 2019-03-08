@@ -57,7 +57,7 @@ class CardsAndResults extends React.Component<IProps, {}> {
       return winResult(
         totalScore([this.props.player1.value, this.props.player2.value, this.props.player3.value]),
         totalScore([this.props.banker1.value, this.props.banker2.value, this.props.banker3.value])
-      ) + (this.props.win < 0 ? 0 : this.props.win);
+      ) + ' ' + (this.props.win < 0 ? 0 : this.props.win);
     }
     else if (this.props.game_state === GameStates.REVEALING_CARDS && this.props.show_blank) {
       return 'Blank card! Shuffling...';

@@ -60,7 +60,7 @@ class Footer extends React.Component<Props, {}> {
     if (this.props.game.game_state === GameStates.WAITING_TO_DEAL || this.props.game.game_state === GameStates.SHOWING_WIN) {
       this.props.clearBets();
       this.props.clearCards();
-      this.props.setGameState('sasdasd');
+      this.props.setGameState(GameStates.WAITING_TO_DEAL);
     }
   }
 
