@@ -87,8 +87,8 @@ class CardsManager {
       let banker2: number = this.banker2.value;
       let player3: number = this.player3.value;
       let banker3: number = this.banker3.value;
-      let player_score: number = this.getScore([player1, player2, player3]);
-      let banker_score: number = this.getScore([banker1, banker2, banker3]);
+      let player_score: number = this.totalScore([player1, player2, player3]);
+      let banker_score: number = this.totalScore([banker1, banker2, banker3]);
       if (draw_counter === 4) {
         return player_score <= 5;
       }
@@ -111,21 +111,36 @@ class CardsManager {
     }
   }
 
-  public getScore(values: number[]): number {
-    let score: number = 0;
+  // TODO: use totalScore in PureFunctions
+  totalScore(values: number[]): number {
+    let totalScore: number = 0;
     for (let i: number = 0; i < values.length; i++) {
-      score += values[i] > 10 ? 10 : values[i];
+      // card values as scores cannot be less 0 (unset) and 10, jack, queen and king have value of 0
+      totalScore += values[i] < 0 ? 0 : values[i] > 10 ? 0 : values[i];
     }
-    return score % 10;
+    return totalScore % 10;
   }
 }
 
 export class Card implements ICard {
-  public value: number;
-  public suit: string;
+  value: number;
+  suit: string;
 
   constructor(value: number, suit: string) {
-    this.value = value;
+    /*
+      values:
+        0 = unset
+        1 = ace
+        11 = jack
+        12 = queen
+        13 = king
+      suits:
+        S = spades
+        C = clubs
+        D = diamonds
+        H = hearts
+    */
+    this.value = value < 0 ? 0 : value > 13 ? 13 : value;
     this.suit = suit;
   }
 }

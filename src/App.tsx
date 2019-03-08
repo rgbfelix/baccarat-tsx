@@ -47,7 +47,7 @@ class App extends React.Component<Props, IState> {
   cards_manager: CardsManager = new CardsManager();
 
   dealClickHandler = (event: any) => {
-    if (this.props.game.game_state === GameStates.WAITING_TO_DEAL || this.props.game.game_state === GameStates.WAITING_TO_DEAL) {
+    if (this.props.game.game_state === GameStates.WAITING_TO_DEAL || this.props.game.game_state === GameStates.SHOWING_WIN) {
       if (this.props.user.balance >= this.getTotalBet()) {
         this.props.clearCards();
         this.setState({reveal_counter: 0});
@@ -72,8 +72,8 @@ class App extends React.Component<Props, IState> {
     this.props.setCard(Actions.SET_BANKER1, table_cards[1].value, table_cards[1].suit);
     this.props.setCard(Actions.SET_BANKER2, table_cards[3].value, table_cards[3].suit);
     this.props.setCard(Actions.SET_BANKER3, table_cards[5].value, table_cards[5].suit);
-    let player_score: number = this.cards_manager.getScore([table_cards[0].value, table_cards[2].value, table_cards[4].value]);
-    let banker_score: number = this.cards_manager.getScore([table_cards[1].value, table_cards[3].value, table_cards[5].value]);
+    let player_score: number = this.cards_manager.totalScore([table_cards[0].value, table_cards[2].value, table_cards[4].value]);
+    let banker_score: number = this.cards_manager.totalScore([table_cards[1].value, table_cards[3].value, table_cards[5].value]);
     // NOTE: Total win means gross win before deduction of total bet.
     this.props.setWin(totalWin(
       player_score,
@@ -151,8 +151,8 @@ class App extends React.Component<Props, IState> {
 
   showWin() {
     this.props.setGameState(GameStates.SHOWING_WIN);
-    let player_score: number = this.cards_manager.getScore([this.props.game.player1.value, this.props.game.player2.value, this.props.game.player3.value]);
-    let banker_score: number = this.cards_manager.getScore([this.props.game.banker1.value, this.props.game.banker2.value, this.props.game.banker3.value]);
+    let player_score: number = this.cards_manager.totalScore([this.props.game.player1.value, this.props.game.player2.value, this.props.game.player3.value]);
+    let banker_score: number = this.cards_manager.totalScore([this.props.game.banker1.value, this.props.game.banker2.value, this.props.game.banker3.value]);
     if (player_score > banker_score) {
       this.props.addHistory('P');
     }

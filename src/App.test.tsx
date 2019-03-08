@@ -9,68 +9,164 @@ it('renders without crashing', () => {
 }); */
 
 import { totalBet, totalScore, winResult, totalWin } from './utils/PureFunctions';
-import { Card } from './components/CardsManager';
 import Actions, { GameStates, IAction, setGameState, setCard, setWin, addBet } from './redux/actions/Actions';
 
-describe('Test game logic', () => {
-  // controlled variable inputs
-  let cards = {
-    player1: new Card(2, 'S'),
-    player2: new Card(2, 'S'),
-    player3: new Card(1, 'S'),
-    banker1: new Card(5, 'H'),
-    banker2: new Card(2, 'H'),
-    banker3: new Card(2, 'H')
-  };
-  let bets = {
-    pp: 0,
-    player: 10,
-    tie: 0,
-    banker: 50,
-    bp: 0
-  }
-
-  // uncontrolled variables
-  let total_bet: number = totalBet(bets.pp, bets.player, bets.tie, bets.banker, bets.bp);
-  let player_score = totalScore([cards.player1.value, cards.player2.value, cards.player3.value]);
-  let banker_score = totalScore([cards.banker1.value, cards.banker2.value, cards.banker3.value]);
-  // NOTE: Total win means gross win before deduction of total bet.
-  let total_win: number = totalWin(
-    player_score,
-    banker_score,
-    cards.player1.value === cards.player2.value,
-    cards.banker1.value === cards.banker2.value,
-    bets.pp,
-    bets.player,
-    bets.tie,
-    bets.banker,
-    bets.bp
-  );
-
-  // tests
-  it('Must have correct total bet:', () => {
-    expect(total_bet).toEqual(60);
+describe('Test game logic:', () => {
+  describe('Total bet:', () => {
+    it('Using valid values as inputs.', () => {
+      expect(
+        totalBet(10, 0, 20, 0, 30)
+      ).toEqual(60);
+    });
+    it('Negative bets must be counted as 0.', () => {
+      expect(
+        totalBet(-10, -20, -30, -40, -50)
+      ).toEqual(0);
+    });
+    it('Must have correct total bet regardless if have 0, negative and positive values as inputs.', () => {
+      expect(
+        totalBet(0, 10, -20, 30, -40)
+      ).toEqual(40);
+    });
   });
 
-  it('Must have correct total win:', () => {
-    expect(total_win).toBe(100);
+  // NOTE: totalWin returns gross win, before deduction of total bet.
+  describe('Total win:', () => {
+    it('Using valid inputs.', () => {
+      expect(totalWin(
+        5, 9,
+        false, false,
+        0, 10, 0, 50, 0
+      )).toBe(100); // banker wins, x2 bet on banker
+    });
+    it('Using valid inputs + player pair.', () => {
+      expect(totalWin(
+        5, 9,
+        true, false,
+        10, 10, 0, 50, 0
+      )).toBe(220); // banker wins and player pair, x2 bet on banker + x12 on pp
+    });
+    it('Using valid inputs + banker pair.', () => {
+      expect(totalWin(
+        5, 9,
+        false, true,
+        0, 10, 0, 50, 10
+      )).toBe(220); // banker wins and banker pair, x2 bet on banker + x12 on bp
+    });
+    it('Negative player scores must be counted as 0.', () => {
+      expect(totalWin(
+        1,
+        -9,
+        false,
+        false,
+        0, 35, 0, 20, 0
+      )).toBe(70); // player wins, x2 bet on player
+    });
+    it('Negative banker scores must be counted as 0.', () => {
+      expect(totalWin(
+        -9,
+        1,
+        false,
+        false,
+        0, 35, 0, 20, 0
+      )).toBe(40); // banker wins, x2 bet on banker
+    });
+    it('Win on negative bet must be 0 because that bet is 0.', () => {
+      expect(totalWin(
+        5,
+        9,
+        false,
+        false,
+        0, 35, 0, -20, 0
+      )).toBe(0); // banker wins, must be 0 instead of -40
+    });
+    it('Must return bets on player and banker when result is tie while there is no bet on tie.', () => {
+      expect(totalWin(
+        5,
+        5,
+        false,
+        false,
+        0, 35, 0, 15, 0
+      )).toBe(50); // remember that totalWin returns gross win
+    });
+    it('Must not return bets on player and banker when result is tie while there is bet on tie.', () => {
+      expect(totalWin(
+        5,
+        5,
+        false,
+        false,
+        0, 35, 10, 15, 0
+      )).toBe(90); // tie wins, x9 bet on tie
+    });
   });
 
-  it('Must have correct player score:', () => {
-    expect(player_score).toBe(5);
+  describe('Player and banker score:', () => {
+    it('Using valid values as inputs total less than 10.', () => {
+      expect(
+        totalScore([1, 2, 5])
+      ).toEqual(8);
+    });
+    it('Using valid values as inputs total divisible by 10.', () => {
+      expect(
+        totalScore([2, 3, 5])
+      ).toEqual(0);
+    });
+    it('Card values more than 10 must be counted as 0.', () => {
+      expect(
+        totalScore([11, 17, 999])
+      ).toEqual(0);
+    });
+    it('Another using valid values as inputs total divisible by 10.', () => {
+      expect(
+        totalScore([5, 7, 8])
+      ).toEqual(0);
+    });
+    it('Using valid values as inputs total more than 10.', () => {
+      expect(
+        totalScore([5, 7, 5])
+      ).toEqual(7);
+    });
+    it('Negative card values must be counted as 0.', () => {
+      expect(
+        totalScore([-5, 0, -3])
+      ).toEqual(0);
+    });
+    it('Must have correct total score regardless if have 0, negative and positive values as inputs.', () => {
+      expect(
+        totalScore([-5, 0, 3])
+      ).toEqual(3);
+    });
   });
 
-  it('Must have correct banker score:', () => {
-    expect(banker_score).toBe(9);
+  describe('Win result:', () => {
+    it('PLAYER', () => {
+      expect(
+        winResult(1, 0)
+      ).toBe('PLAYER WINS!');
+    });
+    it('BANKER.', () => {
+      expect(
+        winResult(0, 1)
+      ).toBe('BANKER WINS!');
+    });
+    it('TIE.', () => {
+      expect(
+        winResult(1, 1)
+      ).toBe('IT\'S A TIE!');
+    });
+    it('Negative input must be counted as 0.', () => {
+      expect(
+        winResult(-2, 1)
+      ).toBe('BANKER WINS!');
+    });
+    it('Inputs more than 9 must be counted as 9.', () => {
+      expect(
+        winResult(15, 9)
+      ).toBe('IT\'S A TIE!');
+    });
   });
 
-  // This can have 'PLAYER WINS!', 'BANKER WINS!', or 'IT\'S A TIE!' depending on the result.
-  it('Must have correct win result:', () => {
-    let win_result = winResult(player_score, banker_score);
-    expect(win_result).toBe('BANKER WINS!');
-  });
-
-  // ADDED TESTS:
+  // ACTIONS-RELATED
   describe('Game state must follow standards:', () => {
     it('Must not accept some random game states:',() => {
       let game_state: IAction = setGameState('SOME_RANDOM_GAME_STATES').payload.game_state;
@@ -97,9 +193,15 @@ describe('Test game logic', () => {
     });
   });
 
-  it('Win must not be less than 0:',() => {
-    let amount: IAction = setWin(-60).payload.amount;
-    expect(amount).toBe(0);
+  describe('Win must not be less than 0:', () => {
+    it('Negative:',() => {
+      let amount: IAction = setWin(-60).payload.amount;
+      expect(amount).toBe(0);
+    });
+    it('Positive:',() => {
+      let amount: IAction = setWin(60).payload.amount;
+      expect(amount).toBe(60);
+    });
   });
 
   describe('Must not add negative bet:', () => {
